@@ -1,53 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ledger — Student Manager</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Manrope:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap"
+          rel="stylesheet"/>
 </head>
 <body>
-    <div class="container">
-        <h1>Gestión estudiantes</h1>
-        <div>
-            <h2>Nuevo Estudiante</h2>
-            <form id="student-form" action="">
-                <input type="hidden" id="student-id">
-                <div>
-                    <label for="name">Nombre</label>
-                    <input type="text" id="name" name="name" required minlength="2" placeholder="Digite nombre">
-                </div>
-                <div>
-                    <label for="name">Edad</label>
-                    <input type="number" id="age" name="age" required min="1" placeholder="Digite su edad">
-                </div>
-                <div>
-                    <label for="name">Nota</label>
-                    <input type="number" id="grade" name="grade" required min="0" max="5" placeholder="Digite nota 0-5">
-                </div>
-                <div>
-                    <button type="submit" id="submit-btn">Guardar</button>
-                    <button type="button">Cancelar</button>
-                </div>
-            </form>
-        </div>
-        <div>
-            <h2>Lista de estudiantes</h2>
-            <table>
-                <thead>
-                    <tr>
-                        <td>ID</td>
-                        <td>Nombre</td>
-                        <td>Edad</td>
-                        <td>Nota</td>
-                        <td>Acciones</td>
-                    </tr>
-                </thead>
-                <tbody id="students-list">
-
-                </tbody>
-            </table>
-        </div>
-    </div>
-    <script src="index.js"></script>
+<div id="root"></div>
+<script type="module" src="/src/main.jsx"></script>
 </body>
 </html>
