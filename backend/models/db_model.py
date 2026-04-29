@@ -1,7 +1,5 @@
 from sqlalchemy import Column, Float, Integer, String
-
 from database import Base
-
 
 class StudentDB(Base):
     __tablename__ = "students"
