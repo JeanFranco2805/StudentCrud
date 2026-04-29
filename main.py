@@ -1,8 +1,8 @@
-from fastapi import FastAPI
-from routes import students
-from database import engine, Base
 
-Base.metadata.create_all(bind=engine)
+def print_hi(name):
+    print(f'Hi, {name}')
 
-app = FastAPI()
-app.include_router(students.router)
+
+if __name__ == '__main__':
+    print_hi('PyCharm')
+
