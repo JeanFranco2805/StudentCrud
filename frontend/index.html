@@ -1,496 +1,122 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Acceder — Gestión Estudiantil</title>
-    <link rel="stylesheet" href="assets/css/app.css" />
-    <style>
-        body {
-            background: var(--slate-50);
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .login-layout {
-            display: flex;
-            width: 100%;
-            min-height: 100vh;
-        }
-
-        .login-aside {
-            width: 420px;
-            flex-shrink: 0;
-            background: var(--blue-700);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            padding: 48px;
-        }
-
-        .login-aside::before {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background:
-                radial-gradient(ellipse 80% 60% at 0% 0%, rgba(255,255,255,0.08) 0%, transparent 60%),
-                radial-gradient(ellipse 60% 80% at 100% 100%, rgba(30,58,138,0.6) 0%, transparent 70%);
-            pointer-events: none;
-        }
-
-        .aside-grid {
-            position: absolute;
-            inset: 0;
-            background-image:
-                linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px);
-            background-size: 40px 40px;
-            pointer-events: none;
-        }
-
-        .aside-logo {
-            position: relative;
-            z-index: 1;
-        }
-
-        .logo-mark {
-            width: 44px;
-            height: 44px;
-            background: rgba(255,255,255,0.15);
-            border-radius: var(--radius);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 20px;
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-
-        .logo-mark svg {
-            width: 22px;
-            height: 22px;
-            stroke: #fff;
-        }
-
-        .aside-logo h1 {
-            font-size: 22px;
-            font-weight: 700;
-            color: #fff;
-            letter-spacing: -0.5px;
-            line-height: 1.2;
-        }
-
-        .aside-logo p {
-            color: rgba(255,255,255,0.6);
-            font-size: 14px;
-            margin-top: 6px;
-        }
-
-        .aside-content {
-            position: relative;
-            z-index: 1;
-        }
-
-        .aside-features {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .aside-feature {
-            display: flex;
-            gap: 14px;
-            align-items: flex-start;
-        }
-
-        .feature-icon {
-            width: 36px;
-            height: 36px;
-            background: rgba(255,255,255,0.12);
-            border-radius: var(--radius-sm);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            flex-shrink: 0;
-            border: 1px solid rgba(255,255,255,0.16);
-        }
-
-        .feature-icon svg {
-            width: 16px;
-            height: 16px;
-            stroke: rgba(255,255,255,0.85);
-        }
-
-        .aside-feature h4 {
-            font-size: 14px;
-            font-weight: 600;
-            color: rgba(255,255,255,0.9);
-            margin-bottom: 2px;
-        }
-
-        .aside-feature p {
-            font-size: 13px;
-            color: rgba(255,255,255,0.5);
-            line-height: 1.5;
-        }
-
-        .aside-footer {
-            position: relative;
-            z-index: 1;
-            font-size: 13px;
-            color: rgba(255,255,255,0.35);
-        }
-
-        .login-main {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 48px 32px;
-        }
-
-        .login-card {
-            width: 100%;
-            max-width: 400px;
-        }
-
-        .login-card-header {
-            margin-bottom: 36px;
-        }
-
-        .login-card-header h2 {
-            font-size: 26px;
-            font-weight: 700;
-            color: var(--slate-900);
-            letter-spacing: -0.6px;
-            line-height: 1.2;
-        }
-
-        .login-card-header p {
-            color: var(--slate-500);
-            font-size: 15px;
-            margin-top: 8px;
-        }
-
-        .step {
-            display: none;
-            animation: fadeSlideIn 300ms var(--ease-out) both;
-        }
-
-        .step.active {
-            display: flex;
-            flex-direction: column;
-            gap: 24px;
-        }
-
-        .otp-inputs {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-        }
-
-        .otp-input {
-            width: 52px;
-            height: 60px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            font-family: var(--font-mono);
-            border: 2px solid var(--slate-200);
-            border-radius: var(--radius);
-            background: #fff;
-            color: var(--slate-900);
-            transition: border-color 150ms, box-shadow 150ms, transform 150ms;
-            -moz-appearance: textfield;
-        }
-
-        .otp-input::-webkit-outer-spin-button,
-        .otp-input::-webkit-inner-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        .otp-input:focus {
-            border-color: var(--blue-500);
-            box-shadow: 0 0 0 3px rgba(59,130,246,0.14);
-            outline: none;
-            transform: scale(1.04);
-        }
-
-        .otp-input.filled {
-            border-color: var(--blue-600);
-            background: var(--blue-50);
-            color: var(--blue-700);
-        }
-
-        .otp-input.error {
-            border-color: var(--red-500);
-            box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-            animation: shake 300ms;
-        }
-
-        @keyframes shake {
-            0%, 100% { transform: translateX(0); }
-            20% { transform: translateX(-4px); }
-            40% { transform: translateX(4px); }
-            60% { transform: translateX(-4px); }
-            80% { transform: translateX(4px); }
-        }
-
-        .otp-info {
-            text-align: center;
-        }
-
-        .otp-email-display {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--blue-50);
-            border: 1px solid var(--blue-100);
-            padding: 6px 14px;
-            border-radius: 99px;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--blue-700);
-            margin-bottom: 8px;
-        }
-
-        .otp-info p {
-            font-size: 13px;
-            color: var(--slate-400);
-        }
-
-        .resend-row {
-            text-align: center;
-            font-size: 13px;
-            color: var(--slate-400);
-        }
-
-        .resend-row button {
-            background: none;
-            border: none;
-            color: var(--blue-600);
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            font-family: var(--font);
-            padding: 0;
-        }
-
-        .resend-row button:hover {
-            color: var(--blue-700);
-        }
-
-        .back-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: none;
-            border: none;
-            color: var(--slate-500);
-            font-size: 13px;
-            font-weight: 500;
-            cursor: pointer;
-            font-family: var(--font);
-            padding: 0;
-            transition: color 150ms;
-        }
-
-        .back-btn:hover {
-            color: var(--slate-800);
-        }
-
-        .back-btn svg {
-            width: 14px;
-            height: 14px;
-            stroke: currentColor;
-        }
-
-        .dev-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            background: var(--amber-50);
-            border: 1px solid #FDE68A;
-            color: #92400E;
-            padding: 10px 14px;
-            border-radius: var(--radius);
-            font-size: 13px;
-            font-weight: 500;
-            line-height: 1.4;
-        }
-
-        .dev-code {
-            font-family: var(--font-mono);
-            font-size: 15px;
-            font-weight: 700;
-            color: #92400E;
-            letter-spacing: 2px;
-        }
-
-        .progress-steps {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 32px;
-        }
-
-        .progress-step {
-            height: 3px;
-            flex: 1;
-            background: var(--slate-200);
-            border-radius: 99px;
-            transition: background 400ms var(--ease-out);
-        }
-
-        .progress-step.done {
-            background: var(--blue-500);
-        }
-
-        @media (max-width: 780px) {
-            .login-aside { display: none; }
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Portal Académico</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400;0,600;1,400&family=Inter:wght@300;400;500&display=swap" rel="stylesheet" />
 </head>
 <body>
 
-<div class="login-layout">
-    <aside class="login-aside">
-        <div class="aside-grid"></div>
-        <div class="aside-logo">
-            <div class="logo-mark">
-                <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                </svg>
-            </div>
-            <h1>Gestión<br>Estudiantil</h1>
-            <p>Sistema de control académico</p>
+  <div id="screen-login" class="screen active">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand">
+          <span class="brand-mark">✦</span>
+          <h1>Portal Académico</h1>
+          <p>Ingresa tu correo institucional para continuar</p>
         </div>
-        <div class="aside-content">
-            <div class="aside-features">
-                <div class="aside-feature">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4>Registro completo</h4>
-                        <p>Administra nombre, edad y calificaciones de cada estudiante.</p>
-                    </div>
-                </div>
-                <div class="aside-feature">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4>Acceso seguro</h4>
-                        <p>Verificación por código OTP enviado a tu correo.</p>
-                    </div>
-                </div>
-                <div class="aside-feature">
-                    <div class="feature-icon">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
-                        </svg>
-                    </div>
-                    <div>
-                        <h4>Estadísticas en vivo</h4>
-                        <p>Promedio, mejores notas y totales actualizados al instante.</p>
-                    </div>
-                </div>
-            </div>
+        <div class="form-group">
+          <label for="email-input">Correo electrónico</label>
+          <input type="email" id="email-input" placeholder="nombre@universidad.edu" />
         </div>
-        <div class="aside-footer">
-            &copy; 2025 Gestión Estudiantil
+        <div id="login-error" class="error-msg hidden"></div>
+        <button id="btn-send-otp" class="btn-primary">Enviar código</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-otp" class="screen">
+    <div class="auth-wrapper">
+      <div class="auth-card">
+        <div class="brand">
+          <span class="brand-mark">✦</span>
+          <h1>Verificación</h1>
+          <p id="otp-subtitle">Código enviado. Revisa tu bandeja de entrada.</p>
         </div>
-    </aside>
-
-    <main class="login-main">
-        <div class="login-card anim-slide-up">
-            <div class="progress-steps">
-                <div class="progress-step done" id="step-indicator-1"></div>
-                <div class="progress-step" id="step-indicator-2"></div>
-            </div>
-
-            <div class="login-card-header" id="card-header">
-                <h2>Bienvenido</h2>
-                <p>Ingresa tu correo para recibir el código de verificación.</p>
-            </div>
-
-            <div id="step-email" class="step active">
-                <div class="field">
-                    <label for="email-input">Correo electrónico</label>
-                    <input
-                        type="email"
-                        id="email-input"
-                        placeholder="nombre@ejemplo.com"
-                        autocomplete="email"
-                        autofocus
-                    />
-                </div>
-                <button class="btn btn-primary btn-full" id="email-btn">
-                    Enviar código de verificación
-                </button>
-            </div>
-
-            <div id="step-otp" class="step">
-                <div class="otp-info">
-                    <div class="otp-email-display">
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
-                        </svg>
-                        <span id="otp-email-display">correo@ejemplo.com</span>
-                    </div>
-                    <p>Código válido por 5 minutos</p>
-                </div>
-
-                <div id="dev-otp-notice" style="display:none;">
-                    <div class="dev-badge">
-                        Modo DEV — código:&nbsp;<span class="dev-code" id="dev-otp-value"></span>
-                    </div>
-                </div>
-
-                <div class="otp-inputs" id="otp-inputs">
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                    <input class="otp-input" type="number" maxlength="1" min="0" max="9" />
-                </div>
-
-                <button class="btn btn-primary btn-full" id="otp-btn" disabled>
-                    Verificar código
-                </button>
-
-                <div class="resend-row">
-                    ¿No llegó el código?&nbsp;
-                    <button id="resend-btn">Reenviar</button>
-                </div>
-
-                <div style="text-align:center">
-                    <button class="back-btn" id="back-btn">
-                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                            <polyline points="15 18 9 12 15 6"/>
-                        </svg>
-                        Cambiar correo
-                    </button>
-                </div>
-            </div>
+        <div class="otp-inputs">
+          <input type="text" maxlength="1" class="otp-digit" />
+          <input type="text" maxlength="1" class="otp-digit" />
+          <input type="text" maxlength="1" class="otp-digit" />
+          <input type="text" maxlength="1" class="otp-digit" />
+          <input type="text" maxlength="1" class="otp-digit" />
+          <input type="text" maxlength="1" class="otp-digit" />
         </div>
+        <div id="otp-error" class="error-msg hidden"></div>
+        <button id="btn-verify-otp" class="btn-primary">Verificar</button>
+        <button id="btn-back" class="btn-ghost">← Volver</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="screen-students" class="screen">
+    <header class="app-header">
+      <div class="header-inner">
+        <div class="header-brand">
+          <span class="brand-mark">✦</span>
+          <span>Portal Académico</span>
+        </div>
+        <div class="header-right">
+          <span id="header-email" class="header-email"></span>
+          <button id="btn-logout" class="btn-ghost-sm">Cerrar sesión</button>
+        </div>
+      </div>
+    </header>
+
+    <main class="app-main">
+      <section class="form-section">
+        <h2 id="form-title">Registrar estudiante</h2>
+        <div class="student-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="student-name">Nombre completo</label>
+              <input type="text" id="student-name" placeholder="Ej. Ana García" />
+            </div>
+            <div class="form-group">
+              <label for="student-age">Edad</label>
+              <input type="number" id="student-age" placeholder="Ej. 20" min="1" max="99" />
+            </div>
+            <div class="form-group">
+              <label for="student-grade">Nota</label>
+              <input type="number" id="student-grade" placeholder="Ej. 4.5" step="0.1" min="0" max="5" />
+            </div>
+          </div>
+          <div id="form-error" class="error-msg hidden"></div>
+          <div class="form-actions">
+            <button id="btn-save" class="btn-primary">Guardar</button>
+            <button id="btn-cancel" class="btn-ghost hidden">Cancelar</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="table-section">
+        <div class="table-header">
+          <h2>Estudiantes registrados</h2>
+          <span id="student-count" class="badge">0</span>
+        </div>
+        <div class="table-wrapper">
+          <table id="students-table">
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Nombre</th>
+                <th>Edad</th>
+                <th>Nota</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="students-tbody">
+              <tr id="empty-row">
+                <td colspan="5" class="empty-state">No hay estudiantes registrados aún</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
     </main>
-</div>
+  </div>
 
-<div id="toast-container"></div>
-
-<script src="assets/js/auth.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
