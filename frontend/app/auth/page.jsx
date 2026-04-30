@@ -5,15 +5,16 @@ import { gsap } from 'gsap';
 import { AlertCircle } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+const OTP_LENGTH = 8; // Actualizado a 8 dígitos según la configuración de Supabase
 
 export default function AuthPage() {
   const containerRef = useRef(null);
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
-  const [otp, setOtp] = useState(['', '', '', '', '', '']);
+  const [otp, setOtp] = useState(Array(OTP_LENGTH).fill(''));
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
-  const otpInputs = useMemo(() => Array.from({ length: 6 }), []);
+  const otpInputs = useMemo(() => Array.from({ length: OTP_LENGTH }), []);
 
   useEffect(() => {
     gsap.fromTo(
@@ -49,7 +50,7 @@ export default function AuthPage() {
   const verifyOtp = async () => {
     setError('');
     const code = otp.join('');
-    if (code.length !== 6) {
+    if (code.length !== OTP_LENGTH) {
       setError('Please complete the verification code.');
       return;
     }
@@ -72,11 +73,56 @@ export default function AuthPage() {
     }
   };
 
+  const handlePasteText = (text) => {
+    const cleanText = text.replace(/\D/g, '').slice(0, OTP_LENGTH);
+    if (!cleanText) return;
+    
+    const next = [...otp];
+    for (let i = 0; i < cleanText.length; i++) {
+      next[i] = cleanText[i];
+    }
+    setOtp(next);
+
+    // Auto-focus al siguiente input vacío o al último
+    const focusIdx = Math.min(cleanText.length, OTP_LENGTH - 1);
+    setTimeout(() => {
+      const inputs = document.querySelectorAll('.otp-box');
+      if (inputs[focusIdx]) inputs[focusIdx].focus();
+    }, 10);
+  };
+
   const setDigit = (idx, value) => {
-    const clean = value.replace(/\D/g, '').slice(0, 1);
+    // Si el usuario pega múltiples caracteres de golpe en un solo input sin usar Ctrl+V
+    if (value.length > 1) {
+      handlePasteText(value);
+      return;
+    }
+
+    const clean = value.replace(/\D/g, '').slice(-1); // toma solo el último dígito ingresado
     const next = [...otp];
     next[idx] = clean;
     setOtp(next);
+
+    // Auto-advance al siguiente input
+    if (clean && idx < OTP_LENGTH - 1) {
+      setTimeout(() => {
+        const nextInput = document.querySelectorAll('.otp-box')[idx + 1];
+        if (nextInput) nextInput.focus();
+      }, 10);
+    }
+  };
+
+  const handlePaste = (e) => {
+    e.preventDefault();
+    const pastedData = e.clipboardData.getData('text/plain');
+    handlePasteText(pastedData);
+  };
+
+  const handleKeyDown = (e, idx) => {
+    if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
+      const prevInput = document.querySelectorAll('.otp-box')[idx - 1];
+      if (prevInput) prevInput.focus();
+    }
   };
 
   return (
@@ -122,15 +168,10 @@ export default function AuthPage() {
                 <input
                   key={idx}
                   inputMode="numeric"
-                  maxLength={1}
                   value={otp[idx]}
                   onChange={(e) => setDigit(idx, e.target.value)}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Backspace' && !otp[idx] && idx > 0) {
-                      const prev = document.querySelectorAll('.otp-box')[idx - 1];
-                      prev?.focus();
-                    }
-                  }}
+                  onKeyDown={(e) => handleKeyDown(e, idx)}
+                  onPaste={handlePaste}
                   className="otp-box"
                 />
               ))}

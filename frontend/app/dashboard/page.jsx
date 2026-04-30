@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { gsap } from 'gsap';
-import { AlertCircle, Edit2, Trash2 } from 'lucide-react';
+import { AlertCircle, Edit2, Trash2, LogOut } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
@@ -126,11 +126,40 @@ export default function DashboardPage() {
     setGrade('');
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('userEmail');
+    window.location.href = '/auth';
+  };
+
   return (
     <div className="luxury-layout">
       <nav className="luxury-nav">
         <div className="brand-title">University</div>
-        <div className="user-badge">{email}</div>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '1.5rem' }}>
+          <div className="user-badge">{email}</div>
+          <button 
+            onClick={logout}
+            style={{
+              background: 'transparent',
+              border: 'none',
+              color: 'var(--danger)',
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.4rem',
+              fontSize: '0.75rem',
+              textTransform: 'uppercase',
+              letterSpacing: '0.05em',
+              cursor: 'pointer',
+              transition: 'opacity 0.2s',
+            }}
+            onMouseOver={(e) => e.currentTarget.style.opacity = 0.7}
+            onMouseOut={(e) => e.currentTarget.style.opacity = 1}
+          >
+            <LogOut size={14} />
+            Cerrar sesión
+          </button>
+        </div>
       </nav>
 
       <main className="luxury-container" ref={containerRef}>
