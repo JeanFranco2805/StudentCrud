@@ -33,7 +33,7 @@ export default function DashboardPage() {
       setToken(savedToken);
       setEmail(savedEmail || 'Authorized User');
     } else {
-      setStudents(DUMMY_DATA);
+      window.location.href = '/auth';
     }
   }, []);
 
@@ -47,15 +47,14 @@ export default function DashboardPage() {
     try {
       const res = await fetch(`${API_URL}/students`, { headers });
       if (res.status === 401) {
-        setStudents(DUMMY_DATA);
-        setError('Authentication required. Displaying sample layout.');
+        localStorage.clear();
+        window.location.href = '/auth';
         return;
       }
       const data = await res.json();
       setStudents(data);
     } catch (e) {
-      setStudents(DUMMY_DATA);
-      setError('Connection offline. Displaying sample layout.');
+      setError('Connection offline. Cannot load data.');
     }
   };
 
@@ -90,12 +89,7 @@ export default function DashboardPage() {
     }
     
     if (!token) {
-      if (editingId) {
-        setStudents(s => s.map(x => x.id === editingId ? { ...x, name, age, grade } : x));
-      } else {
-        setStudents(s => [...s, { id: `usr_${Date.now()}`, name, age, grade }]);
-      }
-      clearForm();
+      setError('Please login to continue.');
       return;
     }
 
@@ -123,10 +117,7 @@ export default function DashboardPage() {
   };
 
   const remove = async (id) => {
-    if (!token) {
-      setStudents(s => s.filter(x => x.id !== id));
-      return;
-    }
+    if (!token) return;
     await fetch(`${API_URL}/students/${id}`, { method: 'DELETE', headers });
     loadStudents();
   };
