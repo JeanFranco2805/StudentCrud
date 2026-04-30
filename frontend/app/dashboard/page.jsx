@@ -2,11 +2,10 @@
 
 import { useEffect, useMemo, useState, useRef } from 'react';
 import { gsap } from 'gsap';
-import { AlertCircle, User, Activity, Hash, Edit2, Trash2 } from 'lucide-react';
+import { AlertCircle, Edit2, Trash2 } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
-// Mock data to ensure the UI is visible even if backend auth fails (as per user priority to see CRUD first)
 const DUMMY_DATA = [
   { id: 'usr_01', name: 'Alfonso De La Cruz', age: 22, grade: 9.5 },
   { id: 'usr_02', name: 'Marina Silva', age: 24, grade: 8.2 },
@@ -16,7 +15,7 @@ const DUMMY_DATA = [
 
 export default function DashboardPage() {
   const [token, setToken] = useState('');
-  const [email, setEmail] = useState('GUEST_ACCESS');
+  const [email, setEmail] = useState('Guest Access');
   const [students, setStudents] = useState([]);
   const [name, setName] = useState('');
   const [age, setAge] = useState('');
@@ -25,16 +24,15 @@ export default function DashboardPage() {
   const [error, setError] = useState('');
   
   const gridRef = useRef(null);
-  const headerRef = useRef(null);
+  const containerRef = useRef(null);
 
   useEffect(() => {
     const savedToken = localStorage.getItem('token');
     const savedEmail = localStorage.getItem('userEmail');
     if (savedToken) {
       setToken(savedToken);
-      setEmail(savedEmail || 'AUTHORIZED_USER');
+      setEmail(savedEmail || 'Authorized User');
     } else {
-      // Bypassing hard redirect to allow UI testing of the "Brutalist" design
       setStudents(DUMMY_DATA);
     }
   }, []);
@@ -45,20 +43,19 @@ export default function DashboardPage() {
   }), [token]);
 
   const loadStudents = async () => {
-    if (!token) return; // Fallback handles dummy data
+    if (!token) return;
     try {
       const res = await fetch(`${API_URL}/students`, { headers });
       if (res.status === 401) {
-        // Show dummy data if token is invalid, allowing UI design to be tested
         setStudents(DUMMY_DATA);
-        setError('UNAUTHORIZED. Showing local simulated data.');
+        setError('Authentication required. Displaying sample layout.');
         return;
       }
       const data = await res.json();
       setStudents(data);
     } catch (e) {
       setStudents(DUMMY_DATA);
-      setError('OFFLINE. Showing local simulated data.');
+      setError('Connection offline. Displaying sample layout.');
     }
   };
 
@@ -66,34 +63,33 @@ export default function DashboardPage() {
     loadStudents();
   }, [token]);
 
-  // GSAP Animations
+  // Luxury GSAP Animations (Slow, smooth drift)
   useEffect(() => {
     if (students.length > 0 && gridRef.current) {
-      const cards = gridRef.current.querySelectorAll('.dossier-card');
+      const cards = gridRef.current.querySelectorAll('.profile-card');
       gsap.fromTo(
         cards,
-        { y: 50, opacity: 0, scale: 0.95 },
-        { y: 0, opacity: 1, scale: 1, duration: 0.6, stagger: 0.05, ease: 'power3.out', overwrite: true }
+        { y: 30, opacity: 0 },
+        { y: 0, opacity: 1, duration: 1.2, stagger: 0.1, ease: 'power4.out', overwrite: true }
       );
     }
   }, [students]);
 
   useEffect(() => {
-    gsap.fromTo(headerRef.current, 
-      { x: -20, opacity: 0 }, 
-      { x: 0, opacity: 1, duration: 1, ease: 'expo.out' }
+    gsap.fromTo(containerRef.current, 
+      { y: 20, opacity: 0 }, 
+      { y: 0, opacity: 1, duration: 1.5, ease: 'power3.out' }
     );
   }, []);
 
   const save = async () => {
     setError('');
     if (!name || !age || !grade) {
-      setError('ALL FIELDS REQUIRED.');
+      setError('Please complete all fields.');
       return;
     }
     
     if (!token) {
-      // Simulate save for the UI demo
       if (editingId) {
         setStudents(s => s.map(x => x.id === editingId ? { ...x, name, age, grade } : x));
       } else {
@@ -112,7 +108,7 @@ export default function DashboardPage() {
     
     if (!res.ok) {
       const data = await res.json();
-      setError(data.detail || 'SYS_ERROR: SAVE FAILED');
+      setError(data.detail || 'Unable to save record.');
       return;
     }
     clearForm();
@@ -143,126 +139,116 @@ export default function DashboardPage() {
   };
 
   return (
-    <main className="dashboard-layout">
-      {/* 1. Left Vertical Branding */}
-      <aside className="vertical-brand">
-        <div className="status-dot" title="SYSTEM ONLINE" />
-        <h1 ref={headerRef}>S T U D E N T S</h1>
-      </aside>
+    <div className="luxury-layout">
+      <nav className="luxury-nav">
+        <div className="brand-title">University</div>
+        <div className="user-badge">{email}</div>
+      </nav>
 
-      {/* 2. Middle Control Panel (Form) */}
-      <section className="control-panel">
-        <div className="panel-header">
-          <h2>{editingId ? 'UPDATE_REC' : 'INSERT_REC'}</h2>
-          <span>{email}</span>
-        </div>
-
-        {error && (
-          <div className="error-banner">
-            <AlertCircle size={16} />
-            {error}
-          </div>
-        )}
-
-        <div className="brutal-form">
-          <div className="input-group">
-            <label>
-              <span>IDENTIFIER_NAME</span>
-              <User size={14} />
-            </label>
-            <input 
-              className="brutal-input" 
-              value={name} 
-              onChange={(e) => setName(e.target.value)} 
-              placeholder="J. DOE" 
-              autoComplete="off"
-            />
-          </div>
-          
-          <div className="input-group">
-            <label>
-              <span>AGE_PARAM</span>
-              <Activity size={14} />
-            </label>
-            <input 
-              className="brutal-input" 
-              value={age} 
-              onChange={(e) => setAge(e.target.value)} 
-              placeholder="00" 
-              type="number" 
-            />
+      <main className="luxury-container" ref={containerRef}>
+        
+        {/* Left Form Panel */}
+        <section className="form-panel">
+          <div>
+            <h1 className="panel-title">{editingId ? 'Edit Profile' : 'New Enrollment'}</h1>
+            <p className="panel-subtitle">Manage student academic records.</p>
           </div>
 
-          <div className="input-group">
-            <label>
-              <span>EVAL_GRADE</span>
-              <Hash size={14} />
-            </label>
-            <input 
-              className="brutal-input" 
-              value={grade} 
-              onChange={(e) => setGrade(e.target.value)} 
-              placeholder="0.0" 
-              type="number" 
-              step="0.1" 
-            />
-          </div>
+          {error && (
+            <div className="error-banner">
+              <AlertCircle size={18} strokeWidth={1.5} />
+              {error}
+            </div>
+          )}
 
-          <div className="flex flex-col gap-3 mt-4">
-            <button className="brutal-btn" onClick={save}>
-              <span>{editingId ? 'COMMIT_UPDATE' : 'EXECUTE_INSERT'}</span>
-            </button>
-            {editingId && (
-              <button className="brutal-btn-ghost" onClick={clearForm}>
-                ABORT_EDIT
+          <div className="luxury-form">
+            <div className="input-wrapper">
+              <label>Full Name</label>
+              <input 
+                className="luxury-input" 
+                value={name} 
+                onChange={(e) => setName(e.target.value)} 
+                placeholder="e.g. Jane Doe" 
+                autoComplete="off"
+              />
+            </div>
+            
+            <div className="input-wrapper">
+              <label>Age</label>
+              <input 
+                className="luxury-input" 
+                value={age} 
+                onChange={(e) => setAge(e.target.value)} 
+                placeholder="21" 
+                type="number" 
+              />
+            </div>
+
+            <div className="input-wrapper">
+              <label>Academic Score</label>
+              <input 
+                className="luxury-input" 
+                value={grade} 
+                onChange={(e) => setGrade(e.target.value)} 
+                placeholder="0.0 - 10.0" 
+                type="number" 
+                step="0.1" 
+              />
+            </div>
+
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem', marginTop: '1rem' }}>
+              <button className="btn-primary" onClick={save}>
+                {editingId ? 'Update Record' : 'Create Record'}
               </button>
-            )}
+              {editingId && (
+                <button className="btn-secondary" onClick={clearForm}>
+                  Cancel Edit
+                </button>
+              )}
+            </div>
           </div>
-        </div>
-      </section>
+        </section>
 
-      {/* 3. Right Data Vault (Grid) */}
-      <section className="data-vault">
-        <div className="vault-header">
-          <h2>VAULT_DATA</h2>
-          <div className="stat-box">
-            <div className="label">ACTIVE_RECORDS</div>
-            <div className="value">[{students.length}]</div>
+        {/* Right Data Grid */}
+        <section className="data-panel">
+          <div className="data-header">
+            <h2>Student Roster</h2>
+            <span className="record-count">{students.length} Records</span>
           </div>
-        </div>
 
-        <div className="dossier-grid" ref={gridRef}>
-          {students.map((s) => (
-            <article key={s.id} className="dossier-card">
-              <div className="card-top">
-                <span className="id">ID: {s.id}</span>
-                <span>SYS_VERIFIED</span>
-              </div>
-              <div className="card-body">
-                <h3>{s.name}</h3>
-                <div className="card-meta">
-                  <div className="meta-item">
-                    <span>AGE</span>
-                    <span>{s.age}</span>
+          <div className="roster-grid" ref={gridRef}>
+            {students.map((s) => (
+              <div key={s.id} className="profile-card">
+                <div className="card-top">
+                  <h3>{s.name}</h3>
+                  <span className="card-id">ID: {s.id}</span>
+                </div>
+                
+                <div className="card-stats">
+                  <div className="stat">
+                    <span className="stat-label">Age</span>
+                    <span className="stat-value">{s.age}</span>
                   </div>
-                  <div className="meta-item grade">
-                    <span>SCORE</span>
-                    <span>{Number(s.grade).toFixed(1)}</span>
+                  <div className="stat">
+                    <span className="stat-label">Score</span>
+                    <span className="stat-value">{Number(s.grade).toFixed(1)}</span>
                   </div>
                 </div>
+
+                <div className="card-actions">
+                  <button className="icon-btn" onClick={() => edit(s)} title="Edit">
+                    <Edit2 size={16} strokeWidth={1.5} />
+                  </button>
+                  <button className="icon-btn delete" onClick={() => remove(s.id)} title="Delete">
+                    <Trash2 size={16} strokeWidth={1.5} />
+                  </button>
+                </div>
               </div>
-              <div className="card-actions">
-                <button className="action-btn" onClick={() => edit(s)}>
-                  <Edit2 size={14} className="mx-auto" />
-                </button>
-                <button className="action-btn delete" onClick={() => remove(s.id)}>
-                  <Trash2 size={14} className="mx-auto" />
-                </button>
-              </div>
-            </article>
-          ))}
-        </div>
-      </section>
-    </main>
+            ))}
+          </div>
+        </section>
+
+      </main>
+    </div>
   );
 }

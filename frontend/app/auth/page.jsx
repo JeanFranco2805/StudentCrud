@@ -2,11 +2,12 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from 'gsap';
+import { AlertCircle } from 'lucide-react';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
 
 export default function AuthPage() {
-  const cardRef = useRef(null);
+  const containerRef = useRef(null);
   const [step, setStep] = useState('email');
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
@@ -16,16 +17,16 @@ export default function AuthPage() {
 
   useEffect(() => {
     gsap.fromTo(
-      cardRef.current,
-      { y: 24, opacity: 0, scale: 0.98 },
-      { y: 0, opacity: 1, scale: 1, duration: 0.8, ease: 'power3.out' }
+      containerRef.current,
+      { y: 30, opacity: 0 },
+      { y: 0, opacity: 1, duration: 1.5, ease: 'power3.out' }
     );
   }, []);
 
   const sendOtp = async () => {
     setError('');
     if (!email.includes('@')) {
-      setError('Correo inválido.');
+      setError('Please enter a valid email address.');
       return;
     }
     setLoading(true);
@@ -36,7 +37,7 @@ export default function AuthPage() {
         body: JSON.stringify({ email })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'No se pudo enviar código');
+      if (!res.ok) throw new Error(data.detail || 'Unable to process request.');
       setStep('otp');
     } catch (err) {
       setError(err.message);
@@ -49,7 +50,7 @@ export default function AuthPage() {
     setError('');
     const code = otp.join('');
     if (code.length !== 6) {
-      setError('Código incompleto.');
+      setError('Please complete the verification code.');
       return;
     }
     setLoading(true);
@@ -60,7 +61,7 @@ export default function AuthPage() {
         body: JSON.stringify({ email, code })
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.detail || 'Código inválido');
+      if (!res.ok) throw new Error(data.detail || 'Invalid verification code.');
       localStorage.setItem('token', data.access_token);
       localStorage.setItem('userEmail', email);
       window.location.href = '/dashboard';
@@ -79,32 +80,44 @@ export default function AuthPage() {
   };
 
   return (
-    <main className="auth-shell">
-      <section className="auth-glow" />
-      <div className="auth-card" ref={cardRef}>
-        <div className="auth-brand">
-          <span className="brand-mark">✦</span>
-          <div>
-            <h1>Portal Académico</h1>
-            <p>Acceso privado por correo. Sin landing. Sin ruido.</p>
-          </div>
+    <div className="auth-wrapper">
+      <div className="auth-container" ref={containerRef}>
+        <div className="auth-header">
+          <h1>University</h1>
+          <p>Academic Management System</p>
         </div>
 
+        {error && (
+          <div className="error-banner">
+            <AlertCircle size={18} strokeWidth={1.5} />
+            {error}
+          </div>
+        )}
+
         {step === 'email' ? (
-          <div className="stack">
-            <label className="field">
-              <span>Correo</span>
-              <input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="nombre@universidad.edu" />
-            </label>
-            {error ? <div className="error-box">{error}</div> : null}
-            <button className="btn btn-primary" onClick={sendOtp} disabled={loading}>
-              {loading ? 'Enviando...' : 'Enviar código'}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <div className="input-wrapper" style={{ textAlign: 'left' }}>
+              <label>Email Address</label>
+              <input 
+                className="luxury-input" 
+                value={email} 
+                onChange={(e) => setEmail(e.target.value)} 
+                placeholder="name@university.edu" 
+                autoComplete="email"
+              />
+            </div>
+            
+            <button className="btn-primary" onClick={sendOtp} disabled={loading}>
+              {loading ? 'Processing...' : 'Continue'}
             </button>
           </div>
         ) : (
-          <div className="stack">
-            <div className="otp-label">Código enviado a {email}</div>
-            <div className="otp-grid">
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+            <p style={{ color: 'var(--fg-muted)', fontSize: '0.9rem' }}>
+              Verification code sent to<br/><strong>{email}</strong>
+            </p>
+            
+            <div className="otp-container">
               {otpInputs.map((_, idx) => (
                 <input
                   key={idx}
@@ -122,14 +135,16 @@ export default function AuthPage() {
                 />
               ))}
             </div>
-            {error ? <div className="error-box">{error}</div> : null}
-            <button className="btn btn-primary" onClick={verifyOtp} disabled={loading}>
-              {loading ? 'Verificando...' : 'Entrar'}
+            
+            <button className="btn-primary" onClick={verifyOtp} disabled={loading}>
+              {loading ? 'Verifying...' : 'Sign In'}
             </button>
-            <button className="btn btn-ghost" onClick={() => setStep('email')}>Cambiar correo</button>
+            <button className="btn-secondary" onClick={() => setStep('email')}>
+              Return
+            </button>
           </div>
         )}
       </div>
-    </main>
+    </div>
   );
 }

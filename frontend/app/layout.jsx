@@ -1,26 +1,28 @@
-import { Syne, JetBrains_Mono } from 'next/font/google';
+import { Cormorant_Garamond, Manrope } from 'next/font/google';
 import './globals.css';
 
-const syne = Syne({
+const cormorant = Cormorant_Garamond({
   subsets: ['latin'],
-  variable: '--font-syne',
+  weight: ['300', '400', '500', '600'],
+  variable: '--font-cormorant',
   display: 'swap',
 });
 
-const mono = JetBrains_Mono({
+const manrope = Manrope({
   subsets: ['latin'],
-  variable: '--font-mono',
+  weight: ['200', '300', '400', '500'],
+  variable: '--font-manrope',
   display: 'swap',
 });
 
 export const metadata = {
-  title: 'Students Vault',
-  description: 'Brutalist Student Terminal',
+  title: 'University Portal',
+  description: 'Refined Academic Management',
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" className={`${syne.variable} ${mono.variable}`}>
+    <html lang="en" className={`${cormorant.variable} ${manrope.variable}`}>
       <body>{children}</body>
     </html>
   );
