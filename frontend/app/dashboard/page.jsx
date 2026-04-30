@@ -27,20 +27,13 @@ export default function DashboardPage() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    const savedToken = localStorage.getItem('token');
-    const savedEmail = localStorage.getItem('userEmail');
-    if (savedToken) {
-      setToken(savedToken);
-      setEmail(savedEmail || 'Authorized User');
-    } else {
-      window.location.href = '/auth';
-    }
+    setEmail('Admin (Auth Bypassed)');
+    setToken('bypass-token'); // Set a dummy token so loadStudents runs
   }, []);
 
   const headers = useMemo(() => ({
-    'Content-Type': 'application/json',
-    ...(token ? { Authorization: `Bearer ${token}` } : {})
-  }), [token]);
+    'Content-Type': 'application/json'
+  }), []);
 
   const loadStudents = async () => {
     if (!token) return;
@@ -88,10 +81,7 @@ export default function DashboardPage() {
       return;
     }
     
-    if (!token) {
-      setError('Please login to continue.');
-      return;
-    }
+    if (!token) return;
 
     const payload = { name, age: Number(age), grade: Number(grade) };
     const res = await fetch(editingId ? `${API_URL}/students/${editingId}` : `${API_URL}/students`, {

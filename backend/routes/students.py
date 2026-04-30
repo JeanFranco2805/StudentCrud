@@ -7,7 +7,7 @@ from models.student_model import StudentCreate, StudentResponse, StudentUpdate
 router = APIRouter(prefix="/students", tags=["students"])
 
 
-@router.get("/", response_model=list[StudentResponse])
+@router.get("", response_model=list[StudentResponse])
 def get_students(db=Depends(get_db), current_user: TokenUser = Depends(get_current_user)):
     return StudentController.get_all(db, current_user.email)
 
@@ -17,7 +17,7 @@ def get_student(student_id: int, db=Depends(get_db), current_user: TokenUser = D
     return StudentController.get_by_id(student_id, db, current_user.email)
 
 
-@router.post("/", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
+@router.post("", response_model=StudentResponse, status_code=status.HTTP_201_CREATED)
 def create_student(student: StudentCreate, db=Depends(get_db), current_user: TokenUser = Depends(get_current_user)):
     return StudentController.create(student, db, current_user.email)
 
