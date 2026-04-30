@@ -1,12 +1,10 @@
-from sqlalchemy import Column, Float, Integer, String
-from backend.database import Base
+from dataclasses import dataclass
 
 
-class StudentDB(Base):
-    __tablename__ = "students"
-
-    id = Column(Integer, primary_key=True, index=True)
-    owner_id = Column(String, nullable=False, index=True)
-    name = Column(String, nullable=False)
-    age = Column(Integer, nullable=False)
-    grade = Column(Float, nullable=False)
+@dataclass
+class StudentDB:
+    id: int
+    owner_id: str
+    name: str
+    age: int
+    grade: float
