@@ -5,37 +5,28 @@ from auth import TokenUser, get_current_user
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
-
 class OTPRequest(BaseModel):
     email: EmailStr
-
 
 class OTPVerify(BaseModel):
     email: EmailStr
     code: str
 
-
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
 
-
 @router.post("/request-otp", status_code=status.HTTP_200_OK)
 def request_otp(body: OTPRequest):
-    result = auth_service.request_otp(body.email)
-    response: dict = {"message": "Código enviado al correo"}
-    if result.get("dev_otp"):
-        response["dev_otp"] = result["dev_otp"]
-    return response
-
+    auth_service.request_otp(body.email)
+    return {"message": "Código enviado al correo"}
 
 @router.post("/verify-otp", response_model=TokenResponse)
 def verify_otp(body: OTPVerify):
-    if not auth_service.verify_otp_code(body.email, body.code):
+    token = auth_service.verify_otp_code(body.email, body.code)
+    if not token:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Código inválido o expirado")
-    token = auth_service.create_access_token(body.email)
     return TokenResponse(access_token=token)
-
 
 @router.get("/me", response_model=TokenUser)
 def get_me(current_user: TokenUser = Depends(get_current_user)):
