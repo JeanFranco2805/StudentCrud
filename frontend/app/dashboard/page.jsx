@@ -27,13 +27,20 @@ export default function DashboardPage() {
   const containerRef = useRef(null);
 
   useEffect(() => {
-    setEmail('Admin (Auth Bypassed)');
-    setToken('bypass-token'); // Set a dummy token so loadStudents runs
+    const savedToken = localStorage.getItem('token');
+    const savedEmail = localStorage.getItem('userEmail');
+    if (savedToken) {
+      setToken(savedToken);
+      setEmail(savedEmail || 'Authorized User');
+    } else {
+      window.location.href = '/auth';
+    }
   }, []);
 
   const headers = useMemo(() => ({
-    'Content-Type': 'application/json'
-  }), []);
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {})
+  }), [token]);
 
   const loadStudents = async () => {
     if (!token) return;

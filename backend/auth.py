@@ -47,5 +47,23 @@ def verify_otp_code(email: str, code: str) -> str:
     return data.get("access_token", "")
 
 def get_current_user(authorization: str | None = Header(default=None)) -> TokenUser:
-    # BYPASS DE AUTENTICACIÓN: Devuelve un usuario por defecto para probar el CRUD
-    return TokenUser(email="admin@university.local")
+    if not authorization or not authorization.lower().startswith("bearer "):
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token requerido")
+
+    token = authorization.split(" ", 1)[1]
+    
+    url = f"{SUPABASE_URL}/auth/v1/user"
+    headers = {
+        "apikey": SUPABASE_ANON_KEY,
+        "Authorization": f"Bearer {token}"
+    }
+    res = requests.get(url, headers=headers)
+    if res.status_code >= 400:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token inválido o expirado")
+    
+    data = res.json()
+    email = data.get("email")
+    if not email:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token sin email")
+    
+    return TokenUser(email=email)
