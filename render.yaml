@@ -1,6 +1,7 @@
 services:
   - type: web
     name: university-api
+    plan: free
     env: python
     rootDir: backend
     buildCommand: pip install -r requirements.txt
@@ -18,6 +19,7 @@ services:
 
   - type: web
     name: university-frontend
+    plan: free
     env: node
     rootDir: frontend
     buildCommand: npm install && npm run build
